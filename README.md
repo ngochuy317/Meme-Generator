@@ -6,7 +6,7 @@
 
 ## Installation
 ```
-git clone 
+git clone https://github.com/ngochuy317/Meme-Generator.git
 ```
 
 

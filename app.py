@@ -3,6 +3,7 @@ import os
 import requests
 from flask import Flask, render_template, abort, request
 from QuoteEngine import Ingestor
+from QuoteEngine.ingestor_interface import QuoteModel
 from MemeGenerator import MemeEngine
 
 # @TODO Import your Ingestor and MemeEngine classes
@@ -73,23 +74,35 @@ def meme_post():
     #    file and the body and author form paramaters.
     # 3. Remove the temporary saved image.
 
-    if not request.form["image_url"]:
-        return render_template('meme_form.html')
-    
     image_url = request.form["image_url"]
+    if not image_url:
+        return render_template('meme_form.html')
+
     try:
         r = requests.get(image_url, verify=False)
         tmp = f'./tmp/{random.randint(0,100000000)}.png'
-        img = open(tmp, 'wb').write(r.content)
-    except:
-        print("Bad Image URL")
+        with open(tmp, 'wb') as open_file:
+            open_file.write(r.content)
+            body = request.form["body"]
+            if body is None:
+                quote_files = [
+                    './_data/DogQuotes/DogQuotesTXT.txt',
+                    './_data/DogQuotes/DogQuotesDOCX.docx',
+                    './_data/DogQuotes/DogQuotesPDF.pdf',
+                    './_data/DogQuotes/DogQuotesCSV.csv'
+                ]
+                quotes = []
+                for f in quote_files:
+                    quotes.extend(Ingestor.parse(f))
+                quote = random.choice(quotes)
+            else:
+                quote = QuoteModel(body, request.form["author"])
+            path = meme.make_meme(tmp, quote.body, quote.author)
+            os.remove(tmp)
+            return render_template('meme.html', path=path)
+    except Exception as e:
+        print(f"Has Error when saving image| {e}")
         return render_template('meme_form.html')
-    
-    body = request.form["body"]
-    author = request.form["author"]
-    path = meme.make_meme(tmp, body, author)
-    os.remove(tmp)
-    return render_template('meme.html', path=path)
 
 
 if __name__ == "__main__":

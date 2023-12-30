@@ -6,7 +6,7 @@ from .CSV_ingestor import CSVIngestor
 from .PDF_ingestor import PDFIngestor
 
 class Ingestor(IngestorInterface):
-    
+
     importers = [
         DocxIngestor,
         TextIngestor,

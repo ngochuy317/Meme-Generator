@@ -15,7 +15,7 @@ class QuoteModel(object):
 class IngestorInterface(metaclass=ABCMeta):
 
     @classmethod
-    def can_ingest(cls, path:str) -> bool:
+    def can_ingest(cls, path: str) -> bool:
         ext = path.split('.')[-1]
         return ext in cls.allowed_extensions
 
